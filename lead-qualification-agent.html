@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadQualify AI — Real Estate Lead Qualification Agent</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  --navy:#0A1628; --navy2:#0D1E35;
+  --blue:#2D7DD2; --blue-light:#5BA4E8;
+  --cream:#F6F3EC; --paper:#FBFAF6;
+  --green:#36D399; --amber:#F2B33D;
+  --text-soft:rgba(255,255,255,0.65);
+  --text-faint:rgba(255,255,255,0.40);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:#13233D;}
+.mono{font-family:'JetBrains Mono',monospace;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 28px;}
+
+/* HEADER */
+header{background:linear-gradient(160deg,var(--navy),var(--navy2));padding:56px 0 0;position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(45,125,210,0.06) 1px, transparent 1px),linear-gradient(90deg, rgba(45,125,210,0.06) 1px, transparent 1px);background-size:46px 46px;}
+.head-inner{position:relative;z-index:1;}
+.back-link{color:var(--text-soft);font-size:13.5px;font-weight:500;display:inline-flex;align-items:center;gap:6px;margin-bottom:30px;}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue-light);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.eyebrow::before{content:'';width:26px;height:2px;background:var(--blue-light);}
+header h1{font-family:'Fraunces',serif;font-size:clamp(30px,4.5vw,46px);color:#fff;font-weight:700;letter-spacing:-1px;max-width:780px;line-height:1.12;margin-bottom:16px;}
+header h1 em{font-style:normal;color:var(--blue-light);}
+.head-sub{color:var(--text-soft);font-size:16px;max-width:600px;line-height:1.6;margin-bottom:36px;}
+.head-stats{display:flex;gap:0;border-top:1px solid rgba(255,255,255,0.1);}
+.hstat{flex:1;padding:22px 0;border-right:1px solid rgba(255,255,255,0.1);}
+.hstat:last-child{border-right:none;}
+.hstat-num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:#fff;}
+.hstat-label{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;}
+
+/* DEMO SECTION */
+.demo-section{padding:64px 0 90px;}
+.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+
+/* PHONE / CHAT MOCK */
+.phone{background:var(--navy);border-radius:22px;padding:18px;box-shadow:0 30px 70px rgba(10,22,40,0.25);}
+.phone-head{display:flex;align-items:center;gap:10px;padding:8px 10px 16px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:14px;}
+.bot-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-light));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:'Fraunces',serif;font-size:14px;flex-shrink:0;}
+.phone-head-name{color:#fff;font-size:14px;font-weight:600;}
+.phone-head-status{color:var(--green);font-size:11px;display:flex;align-items:center;gap:5px;}
+.phone-head-status .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.chat-window{min-height:420px;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:4px 4px 8px;}
+.bubble{max-width:80%;padding:11px 15px;border-radius:16px;font-size:14px;line-height:1.5;opacity:0;transform:translateY(8px);animation:rise 0.4s ease forwards;}
+.bubble.bot{background:rgba(255,255,255,0.07);color:#eceff4;border-bottom-left-radius:5px;align-self:flex-start;}
+.bubble.user{background:var(--blue);color:#fff;border-bottom-right-radius:5px;align-self:flex-end;}
+.bubble.system{background:rgba(54,211,153,0.12);border:1px solid rgba(54,211,153,0.3);color:var(--green);align-self:center;font-family:'JetBrains Mono',monospace;font-size:11.5px;text-align:center;border-radius:8px;max-width:90%;}
+@keyframes rise{to{opacity:1;transform:translateY(0);}}
+.typing{display:flex;gap:4px;padding:11px 15px;background:rgba(255,255,255,0.07);border-radius:16px;border-bottom-left-radius:5px;align-self:flex-start;width:fit-content;opacity:0;animation:rise 0.3s ease forwards;}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:blink 1.2s infinite;}
+.typing span:nth-child(2){animation-delay:0.2s;}
+.typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes blink{0%,60%,100%{opacity:0.3;}30%{opacity:1;}}
+.phone-controls{display:flex;justify-content:center;gap:10px;margin-top:16px;}
+.ctrl-btn{background:var(--blue);color:#fff;border:none;padding:10px 22px;border-radius:8px;font-weight:600;font-size:13.5px;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s;}
+.ctrl-btn:hover{background:var(--blue-light);}
+.ctrl-btn.secondary{background:rgba(255,255,255,0.08);color:var(--text-soft);}
+.ctrl-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* RIGHT PANEL: live lead scoring */
+.panel{position:sticky;top:24px;}
+.panel-card{background:#fff;border:1px solid #ece8de;border-radius:14px;padding:26px;margin-bottom:20px;}
+.panel-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:18px;}
+.lead-field{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f1efe7;font-size:14px;}
+.lead-field:last-child{border-bottom:none;}
+.lead-field .lf-label{color:#888;}
+.lead-field .lf-val{font-weight:600;color:#13233D;}
+.lead-field .lf-val.pending{color:#c4c0b3;font-weight:400;}
+.score-bar-wrap{margin-top:18px;}
+.score-bar-bg{height:8px;background:#f1efe7;border-radius:100px;overflow:hidden;}
+.score-bar-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--green));border-radius:100px;width:0%;transition:width 0.6s ease;}
+.score-label{display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px;}
+.score-label .sl-status{font-weight:700;}
+.sl-status.cold{color:#aaa;}
+.sl-status.warm{color:var(--amber);}
+.sl-status.hot{color:var(--green);}
+
+.stat-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.stat-mini{background:var(--navy);border-radius:12px;padding:18px;}
+.stat-mini .smlabel{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
+.stat-mini .smval{font-family:'Fraunces',serif;font-size:22px;color:#fff;font-weight:700;}
+.stat-mini .smval span{font-size:12px;color:var(--green);margin-left:4px;}
+
+/* HOW IT WORKS */
+.how{background:var(--cream);padding:80px 0;}
+.how-head{max-width:600px;margin-bottom:50px;}
+.section-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-eyebrow::before{content:'';width:26px;height:2px;background:var(--blue);}
+.how-head h2{font-family:'Fraunces',serif;font-size:clamp(26px,3.5vw,36px);font-weight:700;letter-spacing:-0.6px;color:#13233D;line-height:1.15;}
+.how-head p{color:#5a5f6b;font-size:15.5px;margin-top:14px;line-height:1.6;}
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(10,22,40,0.08);border:1px solid rgba(10,22,40,0.08);border-radius:14px;overflow:hidden;}
+.how-card{background:#fff;padding:30px 24px;}
+.how-num{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--blue);margin-bottom:14px;}
+.how-card h3{font-size:16px;font-weight:600;color:#13233D;margin-bottom:8px;}
+.how-card p{font-size:13.5px;color:#666;line-height:1.55;}
+
+/* ROI */
+.roi{padding:80px 0;}
+.roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;}
+.roi-table{background:var(--navy);border-radius:16px;padding:32px;}
+.roi-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.08);}
+.roi-row:last-child{border-bottom:none;}
+.roi-row .rl{color:var(--text-soft);font-size:14px;}
+.roi-row .rv{color:#fff;font-weight:700;font-family:'Fraunces',serif;font-size:18px;}
+.roi-row .rv.green{color:var(--green);}
+.roi-row.total{border-top:1px solid rgba(45,125,210,0.4);margin-top:6px;padding-top:18px;}
+.roi-row.total .rl{color:#fff;font-weight:600;}
+.roi-row.total .rv{font-size:24px;color:var(--green);}
+
+.roi-copy h2{font-family:'Fraunces',serif;font-size:clamp(26px,3.5vw,36px);font-weight:700;letter-spacing:-0.6px;color:#13233D;margin-bottom:18px;line-height:1.15;}
+.roi-copy p{color:#5a5f6b;font-size:15.5px;line-height:1.7;margin-bottom:16px;}
+.roi-list{margin-top:22px;}
+.roi-list li{list-style:none;display:flex;gap:12px;margin-bottom:14px;font-size:14.5px;color:#444;align-items:flex-start;}
+.roi-list .check{color:var(--green);font-weight:700;flex-shrink:0;}
+
+/* CTA */
+.cta{background:linear-gradient(160deg,var(--navy),var(--navy2));padding:80px 0;text-align:center;position:relative;overflow:hidden;}
+.cta::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(45,125,210,0.05) 1px, transparent 1px),linear-gradient(90deg, rgba(45,125,210,0.05) 1px, transparent 1px);background-size:48px 48px;}
+.cta-inner{position:relative;z-index:1;max-width:560px;margin:0 auto;}
+.cta h2{font-family:'Fraunces',serif;color:#fff;font-size:clamp(26px,3.5vw,38px);font-weight:700;margin-bottom:16px;letter-spacing:-0.6px;}
+.cta p{color:var(--text-soft);font-size:15.5px;margin-bottom:30px;}
+.cta-btn{background:var(--blue);color:#fff;padding:15px 30px;border-radius:8px;font-weight:600;font-size:15px;display:inline-block;}
+
+footer{background:var(--navy);padding:24px 0;text-align:center;color:var(--text-faint);font-size:12.5px;border-top:1px solid rgba(255,255,255,0.06);}
+
+@media(max-width:880px){
+  .demo-grid{grid-template-columns:1fr;}
+  .panel{position:static;}
+  .how-grid{grid-template-columns:1fr 1fr;}
+  .roi-grid{grid-template-columns:1fr;}
+  .head-stats{flex-wrap:wrap;}
+  .hstat{flex:1 1 50%;border-bottom:1px solid rgba(255,255,255,0.1);}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap head-inner">
+    <a href="#" class="back-link">← Back to Portfolio</a>
+    <div class="eyebrow">AI Agent Demo · Real Estate</div>
+    <h1>The lead qualification agent that <em>never sleeps</em>, never forgets to follow up, and never lets a hot lead go cold.</h1>
+    <p class="head-sub">A live demo of an AI agent that replaces the manual work of a 5-person intake team — answering inbound enquiries instantly, qualifying budget &amp; intent, and booking the callback, 24/7.</p>
+    <div class="head-stats">
+      <div class="hstat"><div class="hstat-num">&lt; 5 sec</div><div class="hstat-label">Response Time</div></div>
+      <div class="hstat"><div class="hstat-num">24/7</div><div class="hstat-label">Availability</div></div>
+      <div class="hstat"><div class="hstat-num">~5</div><div class="hstat-label">Staff Hours Replaced/Day</div></div>
+      <div class="hstat"><div class="hstat-num">100%</div><div class="hstat-label">Leads Logged, Zero Missed</div></div>
+    </div>
+  </div>
+</header>
+
+<section class="demo-section">
+  <div class="wrap demo-grid">
+
+    <div class="phone">
+      <div class="phone-head">
+        <div class="bot-avatar">AI</div>
+        <div>
+          <div class="phone-head-name">Airport View Assistant</div>
+          <div class="phone-head-status"><span class="dot"></span>Online now</div>
+        </div>
+      </div>
+      <div class="chat-window" id="chatWindow"></div>
+      <div class="phone-controls">
+        <button class="ctrl-btn" id="runBtn" onclick="runDemo()">▶ Run Demo</button>
+        <button class="ctrl-btn secondary" id="resetBtn" onclick="resetDemo()">↺ Reset</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-card">
+        <div class="panel-label">Live Lead Record</div>
+        <div class="lead-field"><span class="lf-label">Name</span><span class="lf-val pending" id="f-name">—</span></div>
+        <div class="lead-field"><span class="lf-label">Budget</span><span class="lf-val pending" id="f-budget">—</span></div>
+        <div class="lead-field"><span class="lf-label">Timeline</span><span class="lf-val pending" id="f-timeline">—</span></div>
+        <div class="lead-field"><span class="lf-label">Location Interest</span><span class="lf-val pending" id="f-location">—</span></div>
+        <div class="lead-field"><span class="lf-label">Contact</span><span class="lf-val pending" id="f-contact">—</span></div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-bg"><div class="score-bar-fill" id="scoreFill"></div></div>
+          <div class="score-label"><span>Lead Score</span><span class="sl-status cold" id="scoreStatus">Awaiting Data</span></div>
+        </div>
+      </div>
+      <div class="stat-mini-grid">
+        <div class="stat-mini"><div class="smlabel">Cost / Lead (Human Team)</div><div class="smval">$8<span>avg</span></div></div>
+        <div class="stat-mini"><div class="smlabel">Cost / Lead (AI Agent)</div><div class="smval">$0.20<span>avg</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="how">
+  <div class="wrap">
+    <div class="how-head">
+      <div class="section-eyebrow">How It Works</div>
+      <h2>One agent, the workload of five intake staff.</h2>
+      <p>A typical 5-person intake team handles initial responses, qualification questions, data entry into the CRM, and callback scheduling. This agent does all four, simultaneously, for every lead, instantly.</p>
+    </div>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-num">01 / RESPOND</div>
+        <h3>Instant First Reply</h3>
+        <p>Replies to every inbound enquiry — website, WhatsApp, or Meta ad — within seconds, any time of day.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">02 / QUALIFY</div>
+        <h3>Ask the Right Questions</h3>
+        <p>Naturally collects budget, timeline, and location intent without feeling like a form.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">03 / SCORE</div>
+        <h3>Rank Lead Quality</h3>
+        <p>Scores each lead hot / warm / cold in real time so sales reps know exactly who to call first.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">04 / BOOK</div>
+        <h3>Schedule the Callback</h3>
+        <p>Logs the lead and books a callback slot automatically — no manual data entry, no missed follow-ups.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="roi">
+  <div class="wrap roi-grid">
+    <div class="roi-copy">
+      <div class="section-eyebrow">Why It's Cost-Effective</div>
+      <h2>Built to replace cost, not headcount romance.</h2>
+      <p>A 5-person intake team handling 150 leads/day costs real money in salaries, training, and turnover — and still has gaps on weekends, after hours, and during busy periods. This agent runs at a fraction of the cost with zero gaps.</p>
+      <ul class="roi-list">
+        <li><span class="check">✓</span> No salaries, no training, no sick days or turnover</li>
+        <li><span class="check">✓</span> Scales instantly during ad campaign spikes</li>
+        <li><span class="check">✓</span> Consistent qualification — no human variance in question quality</li>
+        <li><span class="check">✓</span> Every lead logged automatically, nothing falls through the cracks</li>
+      </ul>
+    </div>
+    <div class="roi-table">
+      <div class="roi-row"><span class="rl">5-Person Intake Team (monthly)</span><span class="rv">$3,500+</span></div>
+      <div class="roi-row"><span class="rl">AI Agent — Hosting + API (monthly)</span><span class="rv green">~$60</span></div>
+      <div class="roi-row"><span class="rl">Leads Handled / Day (team, realistic)</span><span class="rv">~80</span></div>
+      <div class="roi-row"><span class="rl">Leads Handled / Day (AI agent)</span><span class="rv green">Unlimited</span></div>
+      <div class="roi-row total"><span class="rl">Estimated Monthly Savings</span><span class="rv">~$3,440</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap cta-inner">
+    <h2>Want this built for your business?</h2>
+    <p>I design and deploy lead-qualification agents like this one for real estate, healthcare, and e-commerce clients — tailored to your CRM, your questions, your tone.</p>
+    <a href="mailto:junaidhaleem16@gmail.com" class="cta-btn">Get in Touch →</a>
+  </div>
+</section>
+
+<footer>© 2026 Junaid Haleem — Digital Marketing Specialist</footer>
+
+<script>
+const script = [
+  {type:'bot', text:"Hi! 👋 Thanks for reaching out about Airport View. I'm here to help — what's your name?"},
+  {type:'user', text:"Hi, I'm Ahmed."},
+  {type:'bot', text:"Nice to meet you, Ahmed! What budget range are you considering for a residential plot?"},
+  {type:'user', text:"Somewhere around 80–100 lacs.", field:{id:'f-budget', val:'PKR 80–100 lacs'}, score:25},
+  {type:'bot', text:"Great, that fits a few of our prime sections. Are you looking to buy soon, or just exploring for now?"},
+  {type:'user', text:"Fairly soon — within the next month.", field:{id:'f-timeline', val:'Within 1 month'}, score:30},
+  {type:'bot', text:"Perfect — and which block or area are you most interested in?"},
+  {type:'user', text:"Something near the airport access road if possible.", field:{id:'f-location', val:'Airport Access Road'}, score:20},
+  {type:'bot', text:"Got it! Last thing — what's the best number to reach you on for plot maps & pricing?"},
+  {type:'user', text:"+92 316 5xx xxxx", field:{id:'f-contact', val:'+92 316 5••• ••••'}, score:25, name:'Ahmed'},
+  {type:'system', text:"✓ LEAD QUALIFIED — SCORE 100 — CALLBACK BOOKED"},
+  {type:'bot', text:"You're all set, Ahmed! 🎉 You're booked for a callback within the hour, and I've sent the Airport View plot maps to your number. Talk soon!"}
+];
+
+let running = false;
+
+function typeDelay(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+function addBubble(type, text){
+  const win = document.getElementById('chatWindow');
+  const b = document.createElement('div');
+  b.className = 'bubble ' + type;
+  b.textContent = text;
+  win.appendChild(b);
+  win.scrollTop = win.scrollHeight;
+}
+
+function addTyping(){
+  const win = document.getElementById('chatWindow');
+  const t = document.createElement('div');
+  t.className = 'typing';
+  t.id = 'typingIndicator';
+  t.innerHTML = '<span></span><span></span><span></span>';
+  win.appendChild(t);
+  win.scrollTop = win.scrollHeight;
+}
+
+function removeTyping(){
+  const t = document.getElementById('typingIndicator');
+  if(t) t.remove();
+}
+
+function updateScore(score){
+  const fill = document.getElementById('scoreFill');
+  const status = document.getElementById('scoreStatus');
+  fill.style.width = score + '%';
+  status.textContent = score + '%';
+  status.className = 'sl-status ' + (score >= 80 ? 'hot' : score >= 40 ? 'warm' : 'cold');
+  status.textContent = score >= 80 ? 'HOT LEAD' : score >= 40 ? 'WARMING UP' : (score > 0 ? 'COLD' : 'Awaiting Data');
+}
+
+async function runDemo(){
+  if(running) return;
+  running = true;
+  document.getElementById('runBtn').disabled = true;
+  resetDemo(true);
+
+  let score = 0;
+
+  for(const step of script){
+    if(step.type === 'bot' || step.type === 'user'){
+      addTyping();
+      await typeDelay(step.type === 'bot' ? 650 : 450);
+      removeTyping();
+      addBubble(step.type, step.text);
+    } else {
+      addBubble('system', step.text);
+    }
+
+    if(step.field){
+      document.getElementById(step.field.id).textContent = step.field.val;
+      document.getElementById(step.field.id).classList.remove('pending');
+    }
+    if(step.name){
+      document.getElementById('f-name').textContent = step.name;
+      document.getElementById('f-name').classList.remove('pending');
+    }
+    if(step.score){
+      score += step.score;
+      updateScore(Math.min(score, 100));
+    }
+    await typeDelay(step.type === 'system' ? 500 : 250);
+  }
+
+  document.getElementById('runBtn').disabled = false;
+  running = false;
+}
+
+function resetDemo(silent){
+  document.getElementById('chatWindow').innerHTML = '';
+  ['f-name','f-budget','f-timeline','f-location','f-contact'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.textContent = '—';
+    el.classList.add('pending');
+  });
+  updateScore(0);
+  if(!silent){
+    running = false;
+    document.getElementById('runBtn').disabled = false;
+  }
+}
+
+resetDemo(true);
+</script>
+
+</body>
+</html>
