@@ -1,373 +1,856 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LeadQualify AI — Real Estate Lead Qualification Agent</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lead Qualification Agent — Junaid Haleem</title>
+<meta name="description" content="A live demo of an AI lead-qualification agent for real estate: instant replies, qualification, scoring, callback booking, in English and Urdu.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lead Qualification Agent — Junaid Haleem">
+<meta property="og:description" content="Try the agent yourself: it qualifies a real estate lead, scores it and books the callback.">
+<meta name="theme-color" content="#0E3B31">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Noto+Naskh+Arabic:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
+/* Brand palette: change these seven values to re-colour the whole page */
 :root{
-  --navy:#0A1628; --navy2:#0D1E35;
-  --blue:#2D7DD2; --blue-light:#5BA4E8;
-  --cream:#F6F3EC; --paper:#FBFAF6;
-  --green:#36D399; --amber:#F2B33D;
-  --text-soft:rgba(255,255,255,0.65);
-  --text-faint:rgba(255,255,255,0.40);
+  --pine:#0E3B31; --pine-2:#16503F; --fog:#E7EAE2; --chalk:#FAFAF6;
+  --gold:#F2B33D; --moss:#4A6159; --mist:#BFD0C8;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --text:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --pad:clamp(20px,4.5vw,64px);
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:var(--paper);color:#13233D;}
-.mono{font-family:'JetBrains Mono',monospace;}
-.wrap{max-width:1100px;margin:0 auto;padding:0 28px;}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:68px}
+body{background:var(--chalk);color:var(--pine);font-family:var(--text);font-size:19px;line-height:1.62;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.on-light :focus-visible{outline-color:var(--pine)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--gold);color:var(--pine);padding:10px 16px;z-index:100;font-family:var(--display);font-weight:600}
+.skip:focus{left:8px}
+.wrap{max-width:1320px;margin:0 auto;padding:0 var(--pad)}
+.g{display:grid;grid-template-columns:repeat(12,1fr);gap:36px 24px}
+.band{padding:clamp(64px,9vw,120px) 0}
+.on-pine{background:var(--pine);color:var(--chalk)}
+.on-fog{background:var(--fog)}
+.on-chalk{background:var(--chalk)}
+h1,h2,h3{font-family:var(--display);font-stretch:82%;font-weight:700;letter-spacing:-.025em;line-height:.98}
+.title{font-size:clamp(36px,5.2vw,76px)}
+.sub{font-size:clamp(22px,2vw,28px);letter-spacing:-.012em;line-height:1.1;font-stretch:90%;font-weight:650}
+.lede{max-width:56ch;font-size:21px;color:var(--mist)}
 
-/* HEADER */
-header{background:linear-gradient(160deg,var(--navy),var(--navy2));padding:56px 0 0;position:relative;overflow:hidden;}
-header::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(45,125,210,0.06) 1px, transparent 1px),linear-gradient(90deg, rgba(45,125,210,0.06) 1px, transparent 1px);background-size:46px 46px;}
-.head-inner{position:relative;z-index:1;}
-.back-link{color:var(--text-soft);font-size:13.5px;font-weight:500;display:inline-flex;align-items:center;gap:6px;margin-bottom:30px;}
-.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue-light);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
-.eyebrow::before{content:'';width:26px;height:2px;background:var(--blue-light);}
-header h1{font-family:'Fraunces',serif;font-size:clamp(30px,4.5vw,46px);color:#fff;font-weight:700;letter-spacing:-1px;max-width:780px;line-height:1.12;margin-bottom:16px;}
-header h1 em{font-style:normal;color:var(--blue-light);}
-.head-sub{color:var(--text-soft);font-size:16px;max-width:600px;line-height:1.6;margin-bottom:36px;}
-.head-stats{display:flex;gap:0;border-top:1px solid rgba(255,255,255,0.1);}
-.hstat{flex:1;padding:22px 0;border-right:1px solid rgba(255,255,255,0.1);}
-.hstat:last-child{border-right:none;}
-.hstat-num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:#fff;}
-.hstat-label{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;}
+/* nav */
+.nav{position:sticky;top:0;z-index:50;background:var(--pine);color:var(--chalk)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:20px}
+.brand{font-family:var(--display);font-stretch:85%;font-weight:750;font-size:24px;letter-spacing:-.02em;text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:24px;font-family:var(--display);font-weight:500;font-size:16px}
+.nav-links a{text-decoration:none}
+.nav-links a.plain{padding:4px 0;border-bottom:2px solid transparent;transition:border-color .2s}
+.nav-links a.plain:hover{border-color:var(--gold)}
+.btn{display:inline-block;background:var(--gold);color:var(--pine);font-family:var(--display);font-weight:650;font-size:16px;line-height:1.2;padding:12px 20px;border-radius:3px;text-decoration:none;border:0;cursor:pointer;transition:background .2s,transform .2s}
+.btn:hover{background:#FFC857}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.dark{background:var(--pine);color:var(--chalk)}
+.btn.dark:hover{background:var(--pine-2)}
+.btn.ghost{background:transparent;color:var(--pine);box-shadow:inset 0 0 0 2px var(--pine)}
+.btn.ghost:hover{background:var(--fog)}
+.btn.line{background:transparent;color:inherit;box-shadow:inset 0 0 0 2px currentColor}
+.btn.line:hover{background:rgba(255,255,255,.1)}
+.btn.sm{font-size:14px;padding:9px 14px}
 
-/* DEMO SECTION */
-.demo-section{padding:64px 0 90px;}
-.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+/* hero */
+.hero h1{font-size:clamp(40px,6vw,92px);line-height:.95;letter-spacing:-.03em;font-weight:720;max-width:19ch}
+.hero .lede{margin-top:32px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:clamp(48px,7vw,88px)}
+.stat{border-top:3px solid var(--gold);padding-top:14px}
+.stat b{display:block;font-family:var(--display);font-stretch:80%;font-weight:760;font-size:clamp(34px,4vw,56px);line-height:1;letter-spacing:-.02em}
+.stat span{display:block;margin-top:8px;font-size:16px;color:var(--mist)}
 
-/* PHONE / CHAT MOCK */
-.phone{background:var(--navy);border-radius:22px;padding:18px;box-shadow:0 30px 70px rgba(10,22,40,0.25);}
-.phone-head{display:flex;align-items:center;gap:10px;padding:8px 10px 16px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:14px;}
-.bot-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-light));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:'Fraunces',serif;font-size:14px;flex-shrink:0;}
-.phone-head-name{color:#fff;font-size:14px;font-weight:600;}
-.phone-head-status{color:var(--green);font-size:11px;display:flex;align-items:center;gap:5px;}
-.phone-head-status .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
-.chat-window{min-height:420px;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:4px 4px 8px;}
-.bubble{max-width:80%;padding:11px 15px;border-radius:16px;font-size:14px;line-height:1.5;opacity:0;transform:translateY(8px);animation:rise 0.4s ease forwards;}
-.bubble.bot{background:rgba(255,255,255,0.07);color:#eceff4;border-bottom-left-radius:5px;align-self:flex-start;}
-.bubble.user{background:var(--blue);color:#fff;border-bottom-right-radius:5px;align-self:flex-end;}
-.bubble.system{background:rgba(54,211,153,0.12);border:1px solid rgba(54,211,153,0.3);color:var(--green);align-self:center;font-family:'JetBrains Mono',monospace;font-size:11.5px;text-align:center;border-radius:8px;max-width:90%;}
-@keyframes rise{to{opacity:1;transform:translateY(0);}}
-.typing{display:flex;gap:4px;padding:11px 15px;background:rgba(255,255,255,0.07);border-radius:16px;border-bottom-left-radius:5px;align-self:flex-start;width:fit-content;opacity:0;animation:rise 0.3s ease forwards;}
-.typing span{width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:blink 1.2s infinite;}
-.typing span:nth-child(2){animation-delay:0.2s;}
-.typing span:nth-child(3){animation-delay:0.4s;}
-@keyframes blink{0%,60%,100%{opacity:0.3;}30%{opacity:1;}}
-.phone-controls{display:flex;justify-content:center;gap:10px;margin-top:16px;}
-.ctrl-btn{background:var(--blue);color:#fff;border:none;padding:10px 22px;border-radius:8px;font-weight:600;font-size:13.5px;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s;}
-.ctrl-btn:hover{background:var(--blue-light);}
-.ctrl-btn.secondary{background:rgba(255,255,255,0.08);color:var(--text-soft);}
-.ctrl-btn:disabled{opacity:0.4;cursor:not-allowed;}
+/* demo layout */
+.d-left{grid-column:1/7}
+.d-right{grid-column:7/13;display:grid;gap:16px;align-content:start}
+.demo-head{margin-bottom:28px;max-width:62ch}
+.demo-head p{margin-top:14px;color:var(--moss)}
+.ctrls{display:flex;flex-wrap:wrap;gap:14px 22px;margin-bottom:20px}
+.cg{display:flex;flex-direction:column;gap:6px}
+.cl{font-family:var(--display);font-weight:650;font-size:14px}
+.seg{display:inline-flex;border-radius:3px;box-shadow:inset 0 0 0 1.5px var(--pine);overflow:hidden}
+.seg button{font-family:var(--display),"Noto Naskh Arabic",sans-serif;font-weight:500;font-size:14px;padding:9px 13px;background:transparent;color:var(--pine);border:0;cursor:pointer;transition:background .15s}
+.seg button:hover:not([aria-pressed=true]){background:var(--chalk)}
+.seg button[aria-pressed=true]{background:var(--pine);color:var(--chalk)}
+.note{font-size:15px;color:var(--moss);margin-top:14px;max-width:60ch}
 
-/* RIGHT PANEL: live lead scoring */
-.panel{position:sticky;top:24px;}
-.panel-card{background:#fff;border:1px solid #ece8de;border-radius:14px;padding:26px;margin-bottom:20px;}
-.panel-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:18px;}
-.lead-field{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f1efe7;font-size:14px;}
-.lead-field:last-child{border-bottom:none;}
-.lead-field .lf-label{color:#888;}
-.lead-field .lf-val{font-weight:600;color:#13233D;}
-.lead-field .lf-val.pending{color:#c4c0b3;font-weight:400;}
-.score-bar-wrap{margin-top:18px;}
-.score-bar-bg{height:8px;background:#f1efe7;border-radius:100px;overflow:hidden;}
-.score-bar-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--green));border-radius:100px;width:0%;transition:width 0.6s ease;}
-.score-label{display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px;}
-.score-label .sl-status{font-weight:700;}
-.sl-status.cold{color:#aaa;}
-.sl-status.warm{color:var(--amber);}
-.sl-status.hot{color:var(--green);}
+/* phone */
+.phone{background:var(--pine);color:var(--chalk);border-radius:6px;padding:18px}
+.ph-head{display:flex;align-items:center;gap:12px;padding:6px 8px 16px;border-bottom:1px solid rgba(255,255,255,.14);margin-bottom:14px}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--gold);color:var(--pine);display:grid;place-items:center;font-family:var(--display);font-weight:760;font-size:15px;flex-shrink:0}
+.ph-name{font-family:var(--display);font-weight:650;font-size:17px;line-height:1.1}
+.ph-status{font-size:14px;color:var(--mist);display:flex;align-items:center;gap:6px}
+.ph-status i{width:8px;height:8px;border-radius:50%;background:#4ADE80}
+.chat{height:440px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px}
+.chat::before{content:"";margin-top:auto}
+.bubble{max-width:84%;padding:10px 14px;border-radius:14px;font-family:var(--display),"Noto Naskh Arabic",sans-serif;font-size:16px;line-height:1.42;opacity:0;transform:translateY(8px);animation:rise .35s ease forwards;overflow-wrap:anywhere}
+.bubble[lang=ur]{font-size:18px;line-height:1.8}
+.bubble.bot{background:var(--pine-2);align-self:flex-start;border-radius:14px 14px 14px 3px}
+.bubble.user{background:var(--gold);color:var(--pine);align-self:flex-end;border-radius:14px 14px 3px 14px}
+.bubble.system{align-self:center;max-width:96%;text-align:center;font-size:14px;color:var(--gold);box-shadow:inset 0 0 0 1.5px var(--gold);border-radius:3px;background:transparent}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:13px 14px;background:var(--pine-2);border-radius:14px 14px 14px 3px}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--mist);animation:blink 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes rise{to{opacity:1;transform:none}}
+@keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:12px 4px 0;min-height:10px}
+.chip{font-family:var(--display),"Noto Naskh Arabic",sans-serif;font-weight:500;font-size:14px;padding:8px 12px;border-radius:3px;background:transparent;color:var(--chalk);box-shadow:inset 0 0 0 1.5px var(--mist);border:0;cursor:pointer}
+.chip:hover{background:rgba(255,255,255,.1)}
+.inrow{display:flex;gap:8px;margin-top:12px}
+.inrow input{flex:1;min-width:0;font-family:var(--display),"Noto Naskh Arabic",sans-serif;font-size:16px;padding:12px 14px;border:0;border-radius:3px;background:var(--chalk);color:var(--pine)}
+.inrow input:disabled{opacity:.5}
 
-.stat-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.stat-mini{background:var(--navy);border-radius:12px;padding:18px;}
-.stat-mini .smlabel{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
-.stat-mini .smval{font-family:'Fraunces',serif;font-size:22px;color:#fff;font-weight:700;}
-.stat-mini .smval span{font-size:12px;color:var(--green);margin-left:4px;}
+/* right panel */
+.card{background:var(--chalk);border-radius:4px;padding:22px}
+.card h3{font-size:24px;margin-bottom:14px}
+.pipe{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pipe li{border-top:5px solid rgba(14,59,49,.16);padding-top:8px;font-family:var(--display);font-weight:500;font-size:15px;color:var(--moss);transition:border-color .3s,color .3s}
+.pipe li.done{border-color:var(--pine);color:var(--pine)}
+.pipe li.active{border-color:var(--gold);color:var(--pine);font-weight:700}
+.rec .row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid rgba(14,59,49,.14);font-size:17px}
+.rec .row:last-child{border-bottom:0}
+.rec dt{color:var(--moss)}
+.rec dd{font-family:var(--display);font-weight:600;text-align:right;overflow-wrap:anywhere}
+.rec dd.pending{color:#9AABA3;font-weight:400}
+.scorebox{display:grid;grid-template-columns:132px 1fr;gap:20px;align-items:center}
+.ring{position:relative;width:132px;height:132px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:12}
+.ring .tr{stroke:var(--fog)}
+.ring .fg{stroke:var(--moss);stroke-linecap:butt;stroke-dasharray:326.7;stroke-dashoffset:326.7;transition:stroke-dashoffset .7s cubic-bezier(.2,.8,.2,1),stroke .3s}
+.ring .fg.hot{stroke:var(--pine)}
+.ring .fg.warm{stroke:var(--gold)}
+.ring .fg.cold{stroke:var(--moss)}
+.ring .num{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-stretch:80%;font-weight:760;font-size:44px;line-height:1}
+.pill{display:inline-block;font-family:var(--display);font-weight:650;font-size:15px;padding:6px 12px;border-radius:3px}
+.pill.wait{background:var(--fog);color:var(--moss)}
+.pill.hot{background:var(--pine);color:var(--chalk)}
+.pill.warm{background:var(--gold);color:var(--pine)}
+.pill.cold{background:var(--fog);color:var(--pine);box-shadow:inset 0 0 0 1.5px var(--moss)}
+.prio{font-size:16px;color:var(--moss);margin-top:8px}
+.brk{margin-top:18px;display:grid;gap:12px}
+.brow{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-family:var(--display);font-weight:600;font-size:15px}
+.bb{grid-column:1/3;height:6px;background:var(--fog);border-radius:2px;overflow:hidden}
+.bb span{display:block;height:100%;width:0;background:var(--pine);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.bn{grid-column:1/3;font-family:var(--text);font-weight:400;font-size:14px;color:var(--moss)}
+.hand pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5;background:var(--fog);padding:14px;border-radius:3px;margin:8px 0 10px}
+.hand h4{font-family:var(--display);font-weight:650;font-size:16px;margin-top:14px}
+.hand .acts{display:flex;gap:8px;flex-wrap:wrap}
+.hand[hidden]{display:none}
 
-/* HOW IT WORKS */
-.how{background:var(--cream);padding:80px 0;}
-.how-head{max-width:600px;margin-bottom:50px;}
-.section-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
-.section-eyebrow::before{content:'';width:26px;height:2px;background:var(--blue);}
-.how-head h2{font-family:'Fraunces',serif;font-size:clamp(26px,3.5vw,36px);font-weight:700;letter-spacing:-0.6px;color:#13233D;line-height:1.15;}
-.how-head p{color:#5a5f6b;font-size:15.5px;margin-top:14px;line-height:1.6;}
-.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(10,22,40,0.08);border:1px solid rgba(10,22,40,0.08);border-radius:14px;overflow:hidden;}
-.how-card{background:#fff;padding:30px 24px;}
-.how-num{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--blue);margin-bottom:14px;}
-.how-card h3{font-size:16px;font-weight:600;color:#13233D;margin-bottom:8px;}
-.how-card p{font-size:13.5px;color:#666;line-height:1.55;}
+/* how */
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px 28px;margin-top:44px}
+.how-card{border-top:6px solid var(--pine);padding-top:16px}
+.how-card p{margin-top:10px;font-size:17px}
 
-/* ROI */
-.roi{padding:80px 0;}
-.roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;}
-.roi-table{background:var(--navy);border-radius:16px;padding:32px;}
-.roi-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.08);}
-.roi-row:last-child{border-bottom:none;}
-.roi-row .rl{color:var(--text-soft);font-size:14px;}
-.roi-row .rv{color:#fff;font-weight:700;font-family:'Fraunces',serif;font-size:18px;}
-.roi-row .rv.green{color:var(--green);}
-.roi-row.total{border-top:1px solid rgba(45,125,210,0.4);margin-top:6px;padding-top:18px;}
-.roi-row.total .rl{color:#fff;font-weight:600;}
-.roi-row.total .rv{font-size:24px;color:var(--green);}
+/* calculator */
+.c-copy{grid-column:1/6}
+.calc{grid-column:7/13;background:var(--fog);border-radius:4px;padding:clamp(20px,3vw,32px)}
+.c-copy ul{list-style:none;margin-top:26px;display:grid;gap:12px;max-width:46ch}
+.c-copy li{padding-left:22px;position:relative;font-size:18px}
+.c-copy li::before{content:"";position:absolute;left:0;top:.62em;width:10px;height:10px;background:var(--gold)}
+.c-copy p{margin-top:18px;max-width:50ch}
+.srow{display:grid;grid-template-columns:1fr auto;gap:2px 12px;margin-bottom:16px;font-family:var(--display);font-weight:600;font-size:16px}
+.srow input{grid-column:1/3;width:100%;accent-color:var(--pine);height:28px}
+.srow output{font-weight:760}
+.out{background:var(--pine);color:var(--chalk);border-radius:4px;padding:22px;margin-top:8px}
+.out .orow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:17px;border-bottom:1px solid rgba(255,255,255,.14)}
+.out .orow b{font-family:var(--display);font-weight:700}
+.cbars{display:grid;gap:10px;margin:14px 0}
+.cb{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center;font-family:var(--display);font-size:15px}
+.cb i{display:block;height:16px;background:rgba(255,255,255,.14);border-radius:2px;overflow:hidden}
+.cb i span{display:block;height:100%;width:0;background:var(--gold);transition:width .5s ease}
+.cb.ag i span{background:var(--chalk)}
+.big{font-family:var(--display);font-stretch:78%;font-weight:760;font-size:clamp(40px,5vw,64px);line-height:1;color:var(--gold);letter-spacing:-.03em;margin-top:6px}
+.fine{font-size:14px;color:var(--mist);margin-top:12px}
 
-.roi-copy h2{font-family:'Fraunces',serif;font-size:clamp(26px,3.5vw,36px);font-weight:700;letter-spacing:-0.6px;color:#13233D;margin-bottom:18px;line-height:1.15;}
-.roi-copy p{color:#5a5f6b;font-size:15.5px;line-height:1.7;margin-bottom:16px;}
-.roi-list{margin-top:22px;}
-.roi-list li{list-style:none;display:flex;gap:12px;margin-bottom:14px;font-size:14.5px;color:#444;align-items:flex-start;}
-.roi-list .check{color:var(--green);font-weight:700;flex-shrink:0;}
+/* cta + footer */
+.cta h2{font-size:clamp(36px,6vw,88px);max-width:14ch}
+.cta .lede{margin-top:24px}
+.cta-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:32px}
+.foot{background:var(--pine);color:var(--mist);padding:0 0 32px;font-size:15px}
+.foot .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.18);padding-top:20px}
+.foot a{color:var(--chalk)}
 
-/* CTA */
-.cta{background:linear-gradient(160deg,var(--navy),var(--navy2));padding:80px 0;text-align:center;position:relative;overflow:hidden;}
-.cta::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(45,125,210,0.05) 1px, transparent 1px),linear-gradient(90deg, rgba(45,125,210,0.05) 1px, transparent 1px);background-size:48px 48px;}
-.cta-inner{position:relative;z-index:1;max-width:560px;margin:0 auto;}
-.cta h2{font-family:'Fraunces',serif;color:#fff;font-size:clamp(26px,3.5vw,38px);font-weight:700;margin-bottom:16px;letter-spacing:-0.6px;}
-.cta p{color:var(--text-soft);font-size:15.5px;margin-bottom:30px;}
-.cta-btn{background:var(--blue);color:#fff;padding:15px 30px;border-radius:8px;font-weight:600;font-size:15px;display:inline-block;}
-
-footer{background:var(--navy);padding:24px 0;text-align:center;color:var(--text-faint);font-size:12.5px;border-top:1px solid rgba(255,255,255,0.06);}
-
-@media(max-width:880px){
-  .demo-grid{grid-template-columns:1fr;}
-  .panel{position:static;}
-  .how-grid{grid-template-columns:1fr 1fr;}
-  .roi-grid{grid-template-columns:1fr;}
-  .head-stats{flex-wrap:wrap;}
-  .hstat{flex:1 1 50%;border-bottom:1px solid rgba(255,255,255,0.1);}
+@media (max-width:980px){
+  body{font-size:18px}
+  .nav-links a.plain{display:none}
+  .d-left,.d-right,.c-copy,.calc{grid-column:1/13}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .how-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:520px){
+  .how-grid{grid-template-columns:1fr}
+  .scorebox{grid-template-columns:1fr}
+  .cb{grid-template-columns:90px 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .bubble{animation:none;opacity:1;transform:none}
+  .typing span{animation:none;opacity:.7}
+  .ring .fg,.bb span,.cb i span,.pipe li,.btn,.nav-links a.plain,.seg button{transition:none}
 }
 </style>
 </head>
-<body>
+<body id="top">
+<a class="skip" href="#demo">Skip to the demo</a>
 
-<header>
-  <div class="wrap head-inner">
-    <a href="#" class="back-link">← Back to Portfolio</a>
-    <div class="eyebrow">AI Agent Demo · Real Estate</div>
-    <h1>The lead qualification agent that <em>never sleeps</em>, never forgets to follow up, and never lets a hot lead go cold.</h1>
-    <p class="head-sub">A live demo of an AI agent that replaces the manual work of a 5-person intake team — answering inbound enquiries instantly, qualifying budget &amp; intent, and booking the callback, 24/7.</p>
-    <div class="head-stats">
-      <div class="hstat"><div class="hstat-num">&lt; 5 sec</div><div class="hstat-label">Response Time</div></div>
-      <div class="hstat"><div class="hstat-num">24/7</div><div class="hstat-label">Availability</div></div>
-      <div class="hstat"><div class="hstat-num">~5</div><div class="hstat-label">Staff Hours Replaced/Day</div></div>
-      <div class="hstat"><div class="hstat-num">100%</div><div class="hstat-label">Leads Logged, Zero Missed</div></div>
-    </div>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Junaid Haleem, back to portfolio">Junaid Haleem</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a class="plain" href="index.html">Back to portfolio</a>
+      <a class="plain" href="#savings">Savings calculator</a>
+      <a class="btn" href="#contact">Get in touch</a>
+    </nav>
   </div>
 </header>
 
-<section class="demo-section">
-  <div class="wrap demo-grid">
+<noscript><p style="padding:20px;background:var(--gold);color:var(--pine)">This demo needs JavaScript to run.</p></noscript>
 
-    <div class="phone">
-      <div class="phone-head">
-        <div class="bot-avatar">AI</div>
-        <div>
-          <div class="phone-head-name">Airport View Assistant</div>
-          <div class="phone-head-status"><span class="dot"></span>Online now</div>
-        </div>
-      </div>
-      <div class="chat-window" id="chatWindow"></div>
-      <div class="phone-controls">
-        <button class="ctrl-btn" id="runBtn" onclick="runDemo()">▶ Run Demo</button>
-        <button class="ctrl-btn secondary" id="resetBtn" onclick="resetDemo()">↺ Reset</button>
+<main>
+  <!-- HERO -->
+  <section class="band on-pine hero" aria-label="Introduction">
+    <div class="wrap">
+      <h1>The lead qualification agent that never sleeps, never forgets to follow up, and never lets a hot lead go cold.</h1>
+      <p class="lede">A live demo of an AI agent that takes over the manual first-response work of an intake desk: answering enquiries instantly, qualifying budget and intent, and booking the callback, 24/7. Try it yourself below.</p>
+      <div class="stats">
+        <div class="stat"><b>Seconds</b><span>To first reply, not hours</span></div>
+        <div class="stat"><b>24/7</b><span>Availability, including nights and weekends</span></div>
+        <div class="stat"><b>3</b><span>Lead channels: Meta ads, WhatsApp and your website</span></div>
+        <div class="stat"><b>2</b><span>Languages in this demo: English and Urdu</span></div>
       </div>
     </div>
+  </section>
 
-    <div class="panel">
-      <div class="panel-card">
-        <div class="panel-label">Live Lead Record</div>
-        <div class="lead-field"><span class="lf-label">Name</span><span class="lf-val pending" id="f-name">—</span></div>
-        <div class="lead-field"><span class="lf-label">Budget</span><span class="lf-val pending" id="f-budget">—</span></div>
-        <div class="lead-field"><span class="lf-label">Timeline</span><span class="lf-val pending" id="f-timeline">—</span></div>
-        <div class="lead-field"><span class="lf-label">Location Interest</span><span class="lf-val pending" id="f-location">—</span></div>
-        <div class="lead-field"><span class="lf-label">Contact</span><span class="lf-val pending" id="f-contact">—</span></div>
-        <div class="score-bar-wrap">
-          <div class="score-bar-bg"><div class="score-bar-fill" id="scoreFill"></div></div>
-          <div class="score-label"><span>Lead Score</span><span class="sl-status cold" id="scoreStatus">Awaiting Data</span></div>
+  <!-- DEMO -->
+  <section class="band on-fog on-light" id="demo" aria-labelledby="demo-t">
+    <div class="wrap">
+      <div class="demo-head">
+        <h2 class="title" id="demo-t">Be the lead.</h2>
+        <p>Answer the agent's questions in your own words, or watch it run on its own. Every answer updates the lead record and the score on the right, and the agent routes the lead based on what you say.</p>
+      </div>
+      <div class="g">
+        <div class="d-left">
+          <div class="ctrls">
+            <div class="cg"><span class="cl" id="l-mode">Mode</span><div class="seg" id="seg-mode" role="group" aria-labelledby="l-mode"></div></div>
+            <div class="cg"><span class="cl" id="l-lang">Language</span><div class="seg" id="seg-lang" role="group" aria-labelledby="l-lang"></div></div>
+            <div class="cg"><span class="cl" id="l-src">The lead arrives from</span><div class="seg" id="seg-src" role="group" aria-labelledby="l-src"></div></div>
+          </div>
+
+          <div class="phone">
+            <div class="ph-head">
+              <div class="avatar" aria-hidden="true">AI</div>
+              <div>
+                <div class="ph-name" id="ph-name">Airport View Assistant</div>
+                <div class="ph-status"><i></i>Online now</div>
+              </div>
+            </div>
+            <div class="chat" id="chat" role="log" aria-live="polite" aria-label="Conversation with the agent"></div>
+            <div class="chips" id="chips"></div>
+            <div class="inrow">
+              <input id="inp" type="text" autocomplete="off" aria-label="Type your reply" placeholder="Type your reply">
+              <button class="btn" id="send" type="button">Send</button>
+            </div>
+          </div>
+          <p class="note">This demo runs on simple rules in your browser, so it works without a server. Nothing you type leaves this page. A real deployment uses an AI language model and connects to your CRM and WhatsApp. The project name, price range and phone number here are sample data.</p>
+          <p style="margin-top:14px"><button class="btn ghost sm" id="restart" type="button">Restart the conversation</button></p>
+        </div>
+
+        <div class="d-right">
+          <div class="card">
+            <h3>How far along is the lead?</h3>
+            <ol class="pipe" aria-label="Agent progress">
+              <li id="st0">Respond</li>
+              <li id="st1">Qualify</li>
+              <li id="st2">Score</li>
+              <li id="st3">Book</li>
+            </ol>
+          </div>
+
+          <div class="card rec">
+            <h3>Live lead record</h3>
+            <dl>
+              <div class="row"><dt>Name</dt><dd class="pending" id="f-name">—</dd></div>
+              <div class="row"><dt>Source</dt><dd id="f-source">Meta ad</dd></div>
+              <div class="row"><dt>Language</dt><dd id="f-lang">English</dd></div>
+              <div class="row"><dt>Budget</dt><dd class="pending" id="f-budget">—</dd></div>
+              <div class="row"><dt>Timeline</dt><dd class="pending" id="f-timeline">—</dd></div>
+              <div class="row"><dt>Area of interest</dt><dd class="pending" id="f-location">—</dd></div>
+              <div class="row"><dt>Phone</dt><dd class="pending" id="f-contact">—</dd></div>
+            </dl>
+            <p class="note" style="margin-top:12px">Answers in Urdu are saved as structured English fields, ready for a CRM.</p>
+          </div>
+
+          <div class="card">
+            <h3>Lead score</h3>
+            <div class="scorebox">
+              <div class="ring">
+                <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="tr" cx="60" cy="60" r="52"></circle><circle class="fg" id="ring" cx="60" cy="60" r="52"></circle></svg>
+                <div class="num" id="ring-num">0</div>
+              </div>
+              <div>
+                <span class="pill wait" id="pill">Waiting for answers</span>
+                <p class="prio" id="prio">The score builds as the lead answers.</p>
+              </div>
+            </div>
+            <div class="brk" id="brk"></div>
+          </div>
+
+          <div class="card hand" id="hand" hidden>
+            <h3>What your sales team receives</h3>
+            <h4>Lead record for your CRM</h4>
+            <pre id="rec-json"></pre>
+            <div class="acts"><button class="btn dark sm" type="button" data-copy="rec-json">Copy record</button></div>
+            <h4>Message to the sales rep</h4>
+            <pre id="rep-msg"></pre>
+            <div class="acts"><button class="btn dark sm" type="button" data-copy="rep-msg">Copy message</button></div>
+            <p class="note">The phone number is masked in this demo.</p>
+          </div>
         </div>
       </div>
-      <div class="stat-mini-grid">
-        <div class="stat-mini"><div class="smlabel">Cost / Lead (Human Team)</div><div class="smval">$8<span>avg</span></div></div>
-        <div class="stat-mini"><div class="smlabel">Cost / Lead (AI Agent)</div><div class="smval">$0.20<span>avg</span></div></div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section class="band on-chalk on-light" aria-labelledby="how-t">
+    <div class="wrap">
+      <h2 class="title" id="how-t" style="max-width:18ch">One agent, four jobs done at once.</h2>
+      <p style="max-width:60ch;margin-top:20px">A manual intake desk handles first replies, qualification questions, data entry into the CRM and callback scheduling. This agent does all four at the same time, for every lead.</p>
+      <div class="how-grid">
+        <div class="how-card"><h3 class="sub">1. Reply instantly</h3><p>Answers every inbound enquiry from your website, WhatsApp or a Meta ad within seconds, at any time of day.</p></div>
+        <div class="how-card"><h3 class="sub">2. Ask the right questions</h3><p>Collects budget, timeline and location in a natural conversation instead of a form.</p></div>
+        <div class="how-card"><h3 class="sub">3. Score the lead</h3><p>Ranks each lead as hot, warm or cold as the answers come in, so reps know who to call first.</p></div>
+        <div class="how-card"><h3 class="sub">4. Book or nurture</h3><p>Hot and warm leads get a callback slot. Cold leads go into a follow-up sequence. Everything is logged, with no manual data entry.</p></div>
       </div>
     </div>
+  </section>
 
-  </div>
-</section>
+  <!-- SAVINGS -->
+  <section class="band on-chalk on-light" id="savings" aria-labelledby="sv-t" style="padding-top:0">
+    <div class="wrap g">
+      <div class="c-copy">
+        <h2 class="title" id="sv-t">Work out what manual follow-up costs you.</h2>
+        <p>Enter your own numbers. The calculator shows the staff time spent on first replies, what that costs, and how it compares with running the agent.</p>
+        <ul>
+          <li>No salaries, training or turnover for first response</li>
+          <li>Scales instantly during ad campaign spikes</li>
+          <li>The same questions asked the same way every time</li>
+          <li>Every lead logged automatically, so nothing slips through</li>
+        </ul>
+      </div>
+      <div class="calc">
+        <div id="sliders"></div>
+        <div class="out" aria-live="polite">
+          <div class="orow"><span>Staff hours on first response per month</span><b id="r-hours">0</b></div>
+          <div class="orow"><span>Manual cost per month</span><b id="r-manual">$0</b></div>
+          <div class="orow"><span>Agent cost per month</span><b id="r-agent">$0</b></div>
+          <div class="cbars">
+            <div class="cb"><span>Manual</span><i><span id="bar-m"></span></i></div>
+            <div class="cb ag"><span>Agent</span><i><span id="bar-a"></span></i></div>
+          </div>
+          <div class="orow" style="border:0;padding-bottom:0"><span>Leads per month arriving outside office hours</span><b id="r-after">0</b></div>
+          <p class="big" id="r-diff">$0</p>
+          <p class="fine" id="r-diff-l">Estimated monthly difference</p>
+          <p class="fine">These are estimates from the numbers you enter, not results from a client. The agent handles the first reply, qualification and logging. People still make the callback.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<section class="how">
+  <!-- CTA -->
+  <section class="band on-pine cta" id="contact" aria-labelledby="ct-t">
+    <div class="wrap">
+      <h2 id="ct-t">Want this built for your business?</h2>
+      <p class="lede">I design and deploy lead-qualification agents like this one for real estate, healthcare and e-commerce clients, tailored to your CRM, your questions and your tone.</p>
+      <div class="cta-links">
+        <a class="btn" href="mailto:junaidhaleem16@gmail.com">Email me</a>
+        <a class="btn line" href="https://wa.me/923165098385" target="_blank" rel="noopener">Message on WhatsApp</a>
+        <a class="btn line" href="https://www.linkedin.com/in/junaidhaleem" target="_blank" rel="noopener">View LinkedIn profile</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
   <div class="wrap">
-    <div class="how-head">
-      <div class="section-eyebrow">How It Works</div>
-      <h2>One agent, the workload of five intake staff.</h2>
-      <p>A typical 5-person intake team handles initial responses, qualification questions, data entry into the CRM, and callback scheduling. This agent does all four, simultaneously, for every lead, instantly.</p>
-    </div>
-    <div class="how-grid">
-      <div class="how-card">
-        <div class="how-num">01 / RESPOND</div>
-        <h3>Instant First Reply</h3>
-        <p>Replies to every inbound enquiry — website, WhatsApp, or Meta ad — within seconds, any time of day.</p>
-      </div>
-      <div class="how-card">
-        <div class="how-num">02 / QUALIFY</div>
-        <h3>Ask the Right Questions</h3>
-        <p>Naturally collects budget, timeline, and location intent without feeling like a form.</p>
-      </div>
-      <div class="how-card">
-        <div class="how-num">03 / SCORE</div>
-        <h3>Rank Lead Quality</h3>
-        <p>Scores each lead hot / warm / cold in real time so sales reps know exactly who to call first.</p>
-      </div>
-      <div class="how-card">
-        <div class="how-num">04 / BOOK</div>
-        <h3>Schedule the Callback</h3>
-        <p>Logs the lead and books a callback slot automatically — no manual data entry, no missed follow-ups.</p>
-      </div>
-    </div>
+    <span>&copy; 2026 Junaid Haleem. Digital Marketing Specialist.</span>
+    <a href="index.html">Back to portfolio</a>
   </div>
-</section>
-
-<section class="roi">
-  <div class="wrap roi-grid">
-    <div class="roi-copy">
-      <div class="section-eyebrow">Why It's Cost-Effective</div>
-      <h2>Built to replace cost, not headcount romance.</h2>
-      <p>A 5-person intake team handling 150 leads/day costs real money in salaries, training, and turnover — and still has gaps on weekends, after hours, and during busy periods. This agent runs at a fraction of the cost with zero gaps.</p>
-      <ul class="roi-list">
-        <li><span class="check">✓</span> No salaries, no training, no sick days or turnover</li>
-        <li><span class="check">✓</span> Scales instantly during ad campaign spikes</li>
-        <li><span class="check">✓</span> Consistent qualification — no human variance in question quality</li>
-        <li><span class="check">✓</span> Every lead logged automatically, nothing falls through the cracks</li>
-      </ul>
-    </div>
-    <div class="roi-table">
-      <div class="roi-row"><span class="rl">5-Person Intake Team (monthly)</span><span class="rv">$3,500+</span></div>
-      <div class="roi-row"><span class="rl">AI Agent — Hosting + API (monthly)</span><span class="rv green">~$60</span></div>
-      <div class="roi-row"><span class="rl">Leads Handled / Day (team, realistic)</span><span class="rv">~80</span></div>
-      <div class="roi-row"><span class="rl">Leads Handled / Day (AI agent)</span><span class="rv green">Unlimited</span></div>
-      <div class="roi-row total"><span class="rl">Estimated Monthly Savings</span><span class="rv">~$3,440</span></div>
-    </div>
-  </div>
-</section>
-
-<section class="cta">
-  <div class="wrap cta-inner">
-    <h2>Want this built for your business?</h2>
-    <p>I design and deploy lead-qualification agents like this one for real estate, healthcare, and e-commerce clients — tailored to your CRM, your questions, your tone.</p>
-    <a href="mailto:junaidhaleem16@gmail.com" class="cta-btn">Get in Touch →</a>
-  </div>
-</section>
-
-<footer>© 2026 Junaid Haleem — Digital Marketing Specialist</footer>
+</footer>
 
 <script>
-const script = [
-  {type:'bot', text:"Hi! 👋 Thanks for reaching out about Airport View. I'm here to help — what's your name?"},
-  {type:'user', text:"Hi, I'm Ahmed."},
-  {type:'bot', text:"Nice to meet you, Ahmed! What budget range are you considering for a residential plot?"},
-  {type:'user', text:"Somewhere around 80–100 lacs.", field:{id:'f-budget', val:'PKR 80–100 lacs'}, score:25},
-  {type:'bot', text:"Great, that fits a few of our prime sections. Are you looking to buy soon, or just exploring for now?"},
-  {type:'user', text:"Fairly soon — within the next month.", field:{id:'f-timeline', val:'Within 1 month'}, score:30},
-  {type:'bot', text:"Perfect — and which block or area are you most interested in?"},
-  {type:'user', text:"Something near the airport access road if possible.", field:{id:'f-location', val:'Airport Access Road'}, score:20},
-  {type:'bot', text:"Got it! Last thing — what's the best number to reach you on for plot maps & pricing?"},
-  {type:'user', text:"+92 316 5xx xxxx", field:{id:'f-contact', val:'+92 316 5••• ••••'}, score:25, name:'Ahmed'},
-  {type:'system', text:"✓ LEAD QUALIFIED — SCORE 100 — CALLBACK BOOKED"},
-  {type:'bot', text:"You're all set, Ahmed! 🎉 You're booked for a callback within the hour, and I've sent the Airport View plot maps to your number. Talk soon!"}
-];
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);};
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var SC=reduce?0.12:1;
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms*SC);});}
 
-let running = false;
+/* ---------- sample configuration (all demo data) ---------- */
+var PROJECT='Airport View';
+var INV={min:60,max:150};               /* sample plot price range, in lacs */
+var MAX={budget:25,timeline:30,location:20,contact:25};
+var SRC_EN={meta:'Meta ad',wa:'WhatsApp',web:'Website'};
+var SEGS={
+  mode:[['try','Try it yourself'],['watch','Watch it run']],
+  lang:[['en','English'],['ur','اردو']],
+  src:[['meta','Meta ad'],['wa','WhatsApp'],['web','Website']]
+};
 
-function typeDelay(ms){ return new Promise(r => setTimeout(r, ms)); }
+/* ---------- conversation text ---------- */
+var L={
+ en:{
+  ph:'Type your reply',send:'Send',
+  greet:{meta:function(p){return 'Hi! Thanks for clicking our ad about '+p+'. I\'m here to help. What\'s your name?';},
+         wa:function(p){return 'Hi! Thanks for messaging us on WhatsApp about '+p+'. What\'s your name?';},
+         web:function(p){return 'Hi! Thanks for your enquiry on our website about '+p+'. What\'s your name?';}},
+  askBudget:function(n){return 'Nice to meet you, '+n+'! What budget range are you considering for a residential plot?';},
+  budget:{fit:'Great, that fits a few of our prime sections. Are you looking to buy soon, or just exploring for now?',
+          below:'Thanks. That\'s a little below our current range, but I\'ll note it and show you the closest options. Are you looking to buy soon, or just exploring?',
+          above:'Great, that gives you plenty of options. Are you looking to buy soon, or just exploring for now?'},
+  askLoc:'Perfect. Which block or area are you most interested in?',
+  askPhone:'Got it. Last thing: what\'s the best number to reach you on for plot maps and pricing?',
+  badPhone:'That number looks incomplete. Please include the country code, for example +92 300 0000000.',
+  retry:{name:'Sorry, I didn\'t catch your name. What should I call you?',
+         budget:'Sorry, I couldn\'t read a budget there. Try something like "80 to 100 lacs" or "1.5 crore".',
+         timeline:'Roughly when would you like to buy? For example "within a month" or "just exploring".',
+         location:'Which area or block interests you? You can also say "not sure yet".'},
+  done:{hot:function(n){return 'You\'re a great fit, '+n+'. Pick a callback time and I\'ll book it now.';},
+        warm:function(n){return 'Thanks, '+n+'. Pick a callback time and I\'ll book it for you.';},
+        cold:function(n){return 'Thanks, '+n+'. There\'s no rush. I\'ll send the plot maps and pricing and check in with you next week.';}},
+  booked:function(n,at){return 'Booked, '+n+'. Your callback is '+at+', and I\'ll send the plot maps to your number.';},
+  sys:function(s,p){return 'Lead qualified. Score '+s+'. Priority '+p+'.';},
+  again:'Try another lead',
+  chips:{name:['Ahmed'],budget:['80–100 lacs','1.5 crore','30 lacs'],timeline:['Within a month','In 2–3 months','Just exploring'],location:['Near the airport access road','Block C','Not sure yet'],phone:['+92 300 0000000']}
+ },
+ ur:{
+  ph:'اپنا جواب لکھیں',send:'بھیجیں',
+  greet:{meta:function(p){return 'السلام علیکم! ہمارے '+p+' کے اشتہار پر رابطہ کرنے کا شکریہ۔ میں آپ کی مدد کے لیے حاضر ہوں۔ آپ کا نام کیا ہے؟';},
+         wa:function(p){return 'السلام علیکم! '+p+' کے بارے میں واٹس ایپ پر پیغام دینے کا شکریہ۔ آپ کا نام کیا ہے؟';},
+         web:function(p){return 'السلام علیکم! ہماری ویب سائٹ پر '+p+' کے بارے میں انکوائری کرنے کا شکریہ۔ آپ کا نام کیا ہے؟';}},
+  askBudget:function(n){return 'آپ سے مل کر خوشی ہوئی، '+n+'! رہائشی پلاٹ کے لیے آپ کا بجٹ کتنا ہے؟';},
+  budget:{fit:'بہت اچھا، یہ بجٹ ہمارے کئی بہترین سیکشنز میں فٹ ہوتا ہے۔ کیا آپ جلد خریدنا چاہتے ہیں یا ابھی صرف دیکھ رہے ہیں؟',
+          below:'شکریہ، یہ بجٹ ہماری موجودہ رینج سے کچھ کم ہے، لیکن میں اسے نوٹ کر لیتا ہوں اور آپ کو قریب ترین آپشنز دکھاؤں گا۔ کیا آپ جلد خریدنا چاہتے ہیں یا ابھی صرف دیکھ رہے ہیں؟',
+          above:'بہت اچھا، اس بجٹ میں آپ کے پاس کافی آپشنز ہیں۔ کیا آپ جلد خریدنا چاہتے ہیں یا ابھی صرف دیکھ رہے ہیں؟'},
+  askLoc:'ٹھیک ہے۔ آپ کس بلاک یا علاقے میں زیادہ دلچسپی رکھتے ہیں؟',
+  askPhone:'سمجھ گیا۔ آخری سوال: پلاٹ کے نقشے اور قیمتیں بھیجنے کے لیے آپ کا بہترین نمبر کون سا ہے؟',
+  badPhone:'یہ نمبر مکمل نہیں لگ رہا۔ براہ کرم ملک کے کوڈ کے ساتھ لکھیں، مثلاً +92 300 0000000۔',
+  retry:{name:'معذرت، میں نام سمجھ نہیں پایا۔ میں آپ کو کس نام سے مخاطب کروں؟',
+         budget:'معذرت، میں بجٹ نہیں سمجھ سکا۔ کچھ ایسے لکھیں: "80 سے 100 لاکھ" یا "1.5 کروڑ"۔',
+         timeline:'آپ تقریباً کب خریدنا چاہتے ہیں؟ مثلاً "ایک مہینے میں" یا "ابھی صرف دیکھ رہا ہوں"۔',
+         location:'آپ کس علاقے یا بلاک میں دلچسپی رکھتے ہیں؟ آپ "ابھی پتا نہیں" بھی لکھ سکتے ہیں۔'},
+  done:{hot:function(n){return n+'، آپ ہمارے لیے بہت موزوں ہیں۔ کال بیک کا وقت منتخب کریں، میں ابھی بُک کر دیتا ہوں۔';},
+        warm:function(n){return 'شکریہ '+n+'۔ کال بیک کا وقت منتخب کریں، میں آپ کے لیے بُک کر دیتا ہوں۔';},
+        cold:function(n){return 'شکریہ '+n+'۔ کوئی جلدی نہیں۔ میں پلاٹ کے نقشے اور قیمتیں بھیج دوں گا اور اگلے ہفتے آپ سے رابطہ کروں گا۔';}},
+  booked:function(n,at){return 'طے ہو گیا، '+n+'۔ آپ کا کال بیک '+at+' ہوگا، اور میں پلاٹ کے نقشے آپ کے نمبر پر بھیج دوں گا۔';},
+  sys:function(s,p){return 'لیڈ کوالیفائی ہو گئی۔ اسکور '+s+'۔ ترجیح '+p+'۔';},
+  again:'ایک اور لیڈ آزمائیں',
+  chips:{name:['احمد'],budget:['80 سے 100 لاکھ','1.5 کروڑ','30 لاکھ'],timeline:['جلد، اگلے مہینے تک','دو سے تین مہینے میں','ابھی صرف دیکھ رہا ہوں'],location:['ایئرپورٹ ایکسیس روڈ کے قریب','بلاک C','ابھی پتا نہیں'],phone:['+92 300 0000000']}
+ }
+};
+var AUTO={
+ en:['Hi, I\'m Ahmed.','Somewhere around 80–100 lacs.','Fairly soon, within the next month.','Something near the airport access road if possible.','+92 300 0000000'],
+ ur:['میرا نام احمد ہے۔','تقریباً 80 سے 100 لاکھ۔','جلد، اگلے مہینے تک۔','ایئرپورٹ ایکسیس روڈ کے قریب۔','+92 300 0000000']
+};
+var PRIO_EN={1:'Priority 1: call within the hour',2:'Priority 2: call on the next business day',3:'Priority 3: nurture sequence, no call'};
 
-function addBubble(type, text){
-  const win = document.getElementById('chatWindow');
-  const b = document.createElement('div');
-  b.className = 'bubble ' + type;
-  b.textContent = text;
-  win.appendChild(b);
-  win.scrollTop = win.scrollHeight;
+/* ---------- parsing (English and Urdu) ---------- */
+function nd(s){return s.replace(/[\u0660-\u0669]/g,function(c){return c.charCodeAt(0)-0x660;}).replace(/[\u06F0-\u06F9]/g,function(c){return c.charCodeAt(0)-0x6F0;});}
+function cap(s){return s.replace(/^[a-z]/,function(c){return c.toUpperCase();});}
+function parseName(s){
+  var t=s.replace(/[\u2019]/g,"'").replace(/[.,!?\u061F\u06D4\u060C]/g,' ').trim();
+  t=t.replace(/^(hi|hello|hey|salam|assalam[\s-]*o[\s-]*alaikum|assalamualaikum|السلام علیکم|سلام)\s+/i,'');
+  t=t.replace(/\b(my name is|name is|i am|i'm|this is|mera naam)\b/gi,' ').replace(/(میرا نام|میں)/g,' ');
+  t=t.replace(/\b(hai|hoon|ji)\b/gi,' ').replace(/(^|\s)(ہے|ہوں|جی)(?=\s|$)/g,' ');
+  t=t.replace(/\s+/g,' ').trim();
+  if(!t||/\d/.test(t)||t.length>30)return null;
+  return cap(t.split(' ').slice(0,2).join(' '));
 }
-
-function addTyping(){
-  const win = document.getElementById('chatWindow');
-  const t = document.createElement('div');
-  t.className = 'typing';
-  t.id = 'typingIndicator';
-  t.innerHTML = '<span></span><span></span><span></span>';
-  win.appendChild(t);
-  win.scrollTop = win.scrollHeight;
+function fmtL(v){
+  if(v>=100){var c=v/100;return (c%1===0?c:+c.toFixed(2))+' crore';}
+  return (v%1===0?v:+v.toFixed(1))+' lacs';
 }
-
-function removeTyping(){
-  const t = document.getElementById('typingIndicator');
-  if(t) t.remove();
-}
-
-function updateScore(score){
-  const fill = document.getElementById('scoreFill');
-  const status = document.getElementById('scoreStatus');
-  fill.style.width = score + '%';
-  status.textContent = score + '%';
-  status.className = 'sl-status ' + (score >= 80 ? 'hot' : score >= 40 ? 'warm' : 'cold');
-  status.textContent = score >= 80 ? 'HOT LEAD' : score >= 40 ? 'WARMING UP' : (score > 0 ? 'COLD' : 'Awaiting Data');
-}
-
-async function runDemo(){
-  if(running) return;
-  running = true;
-  document.getElementById('runBtn').disabled = true;
-  resetDemo(true);
-
-  let score = 0;
-
-  for(const step of script){
-    if(step.type === 'bot' || step.type === 'user'){
-      addTyping();
-      await typeDelay(step.type === 'bot' ? 650 : 450);
-      removeTyping();
-      addBubble(step.type, step.text);
-    } else {
-      addBubble('system', step.text);
-    }
-
-    if(step.field){
-      document.getElementById(step.field.id).textContent = step.field.val;
-      document.getElementById(step.field.id).classList.remove('pending');
-    }
-    if(step.name){
-      document.getElementById('f-name').textContent = step.name;
-      document.getElementById('f-name').classList.remove('pending');
-    }
-    if(step.score){
-      score += step.score;
-      updateScore(Math.min(score, 100));
-    }
-    await typeDelay(step.type === 'system' ? 500 : 250);
-  }
-
-  document.getElementById('runBtn').disabled = false;
-  running = false;
-}
-
-function resetDemo(silent){
-  document.getElementById('chatWindow').innerHTML = '';
-  ['f-name','f-budget','f-timeline','f-location','f-contact'].forEach(id=>{
-    const el = document.getElementById(id);
-    el.textContent = '—';
-    el.classList.add('pending');
+function parseBudget(s){
+  var t=nd(s).replace(/(\d),(?=\d{3}\b)/g,'$1');
+  var re=/(\d+(?:\.\d+)?)\s*(crore|cr\b|کروڑ|lakhs?|lacs?|لاکھ|million|ملین)?/gi,m,arr=[];
+  while((m=re.exec(t))!==null){arr.push({n:parseFloat(m[1]),u:m[2]?m[2].toLowerCase():''});}
+  if(!arr.length)return null;
+  arr=arr.slice(0,2);
+  if(arr.length===2){if(!arr[0].u&&arr[1].u)arr[0].u=arr[1].u;}
+  var vals=arr.map(function(x){
+    var u=x.u;
+    if(/crore|^cr$|کروڑ/.test(u))return x.n*100;
+    if(/million|ملین/.test(u))return x.n*10;
+    if(/lac|lakh|لاکھ/.test(u))return x.n;
+    return x.n>=100000?x.n/100000:x.n;
   });
-  updateScore(0);
-  if(!silent){
-    running = false;
-    document.getElementById('runBtn').disabled = false;
+  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals);
+  if(!(hi>0))return null;
+  var text=(lo===hi)?('PKR '+fmtL(lo)):((hi<100)?('PKR '+lo+'–'+hi+' lacs'):('PKR '+fmtL(lo)+' – '+fmtL(hi)));
+  var fit=hi<INV.min?'below':(lo>INV.max?'above':'fit');
+  var p=fit==='fit'?25:(fit==='above'?22:12);
+  var note=fit==='fit'?'Within the current price range':(fit==='above'?'Above the current price range':'Below the current price range');
+  return {text:text,range:(lo===hi?[lo]:[lo,hi]),fit:fit,p:p,n:note};
+}
+function parseTimeline(s){
+  var t=nd(s).toLowerCase();
+  if(/explor|just look|not sure|later|next year|six months|6 months|no rush|just checking|دیکھ رہ|بعد میں|ابھی نہیں|سوچ|اگلے سال/.test(t))return {v:'Exploring',p:5,n:'Still exploring'};
+  if(/([23]|two|three|دو|تین)\s*(months?|مہینے|ماہ)|quarter|few months|couple of months|چند مہینے/.test(t))return {v:'2–3 months',p:15,n:'Planning to buy in 2–3 months'};
+  if(/asap|immediate|right away|today|tomorrow|this week|next week|this month|next month|soon|couple of weeks|few weeks|\b[1-4]\s*weeks?\b|(^|\D)(1|one|a|ایک)\s*(month|مہینے|ماہ)|فوری|ابھی|جلد|اس ہفتے|اگلے ہفتے|اس مہینے|اگلے مہینے|چند ہفتے/.test(t))return {v:'Within 1 month',p:30,n:'Ready to buy within a month'};
+  return null;
+}
+function parseLocation(s){
+  var t=s.trim().replace(/[.\u06D4!\u061F?]+$/,'');
+  if(t.length<2)return null;
+  if(/not sure|no idea|undecided|don'?t know|پتا نہیں|پتہ نہیں|معلوم نہیں/i.test(t))return {v:'Not decided yet',p:8,n:'Undecided'};
+  if(/airport|ایئرپورٹ|ائیرپورٹ|ایئر پورٹ|access road|ایکسیس/i.test(t))return {v:'Airport Access Road',p:20,n:'Matches a project area'};
+  if(/\b(block|phase|sector)\s*[a-z0-9]+|بلاک|فیز|سیکٹر/i.test(t))return {v:cap(t.slice(0,40)),p:20,n:'Matches a project area'};
+  return {v:cap(t.slice(0,40)),p:14,n:'Area noted'};
+}
+function parsePhone(s){
+  var t=nd(s),plus=/^\s*\+/.test(t),d=t.replace(/\D/g,'');
+  if(d.length<10||d.length>13)return null;
+  var full;
+  if(plus)full='+'+d;
+  else if(d.charAt(0)==='0'&&d.length===11)full='+92'+d.slice(1);
+  else if(d.indexOf('92')===0)full='+'+d;
+  else full='+'+d;
+  var masked=full.indexOf('+92')===0?('+92 '+full.slice(3,6)+' ••• ••••'):(full.slice(0,5)+' ••• ••••');
+  return {masked:masked};
+}
+
+/* ---------- state ---------- */
+var S=null,chat=$('chat'),chips=$('chips'),inp=$('inp'),sendBtn=$('send');
+function fresh(prev){
+  return {token:prev?prev.token+1:1,mode:prev?prev.mode:'try',lang:prev?prev.lang:'en',src:prev?prev.src:'meta',
+          step:'name',busy:false,fails:{},d:{},pts:{budget:0,timeline:0,location:0,contact:0},notes:{},slot:null,slots:[],final:null};
+}
+function total(){return S.pts.budget+S.pts.timeline+S.pts.location+S.pts.contact;}
+
+/* ---------- ui helpers ---------- */
+function addBubble(kind,text){
+  var b=document.createElement('div');
+  b.className='bubble '+kind;
+  if(kind==='bot'||kind==='system'){b.setAttribute('dir',S.lang==='ur'?'rtl':'ltr');if(S.lang==='ur')b.setAttribute('lang','ur');}
+  else{b.setAttribute('dir','auto');}
+  b.textContent=text;
+  chat.appendChild(b);
+  chat.scrollTop=chat.scrollHeight;
+}
+function typing(on){
+  var t=$('typing');
+  if(on&&!t){t=document.createElement('div');t.className='typing';t.id='typing';t.innerHTML='<span></span><span></span><span></span>';chat.appendChild(t);chat.scrollTop=chat.scrollHeight;}
+  if(!on&&t)t.remove();
+}
+function botSay(text,tok){
+  typing(true);
+  var ms=Math.min(500+text.length*9,1300);
+  return sleep(ms).then(function(){
+    if(tok!==S.token)return false;
+    typing(false);addBubble('bot',text);return true;
+  });
+}
+function setField(id,val){var e=$('f-'+id);e.textContent=val;e.classList.remove('pending');}
+function resetFields(){
+  ['name','budget','timeline','location','contact'].forEach(function(id){var e=$('f-'+id);e.textContent='—';e.classList.add('pending');});
+  $('f-source').textContent=SRC_EN[S.src];
+  $('f-lang').textContent=S.lang==='ur'?'Urdu':'English';
+}
+function setStage(n){
+  for(var i=0;i<4;i++){var li=$('st'+i);li.className=i<n?'done':(i===n?'active':'');}
+}
+function setInput(on){
+  inp.disabled=!on;sendBtn.disabled=!on;
+  if(on&&S.mode==='try'){inp.focus({preventScroll:true});}
+}
+function clearChips(){chips.innerHTML='';}
+function addChip(label,fn){
+  var b=document.createElement('button');b.type='button';b.className='chip';b.textContent=label;
+  b.addEventListener('click',fn);chips.appendChild(b);
+}
+function showChips(){
+  clearChips();
+  if(S.mode!=='try'||S.busy)return;
+  var t=L[S.lang];
+  if(S.step==='slot'){S.slots.forEach(function(s){addChip(s.label[S.lang],function(){book(s);});});return;}
+  if(S.step==='done'){addChip(t.again,function(){resetAll();});return;}
+  var key=S.step==='contact'?'phone':S.step;
+  (t.chips[key]||[]).forEach(function(c){addChip(c,function(){handleUser(c);});});
+}
+function applyLang(){
+  var t=L[S.lang];
+  inp.placeholder=t.ph;sendBtn.textContent=t.send;
+  inp.setAttribute('dir',S.lang==='ur'?'rtl':'ltr');
+}
+
+/* ---------- scoring ui ---------- */
+var BRK=[['budget','Budget'],['timeline','Timeline'],['location','Area'],['contact','Phone number']];
+function buildBrk(){
+  $('brk').innerHTML=BRK.map(function(r){
+    return '<div class="brow"><span>'+r[1]+'</span><span id="bv-'+r[0]+'">0/'+MAX[r[0]]+'</span><div class="bb"><span id="bf-'+r[0]+'"></span></div><p class="bn" id="bn-'+r[0]+'">Waiting for an answer</p></div>';
+  }).join('');
+}
+function renderScore(){
+  var s=total();
+  BRK.forEach(function(r){
+    var k=r[0];
+    $('bv-'+k).textContent=S.pts[k]+'/'+MAX[k];
+    $('bf-'+k).style.width=(S.pts[k]/MAX[k]*100)+'%';
+    $('bn-'+k).textContent=S.notes[k]||'Waiting for an answer';
+  });
+  $('ring-num').textContent=s;
+  var ring=$('ring');
+  ring.style.strokeDashoffset=326.7*(1-s/100);
+  var f=S.final,pill=$('pill'),prio=$('prio');
+  if(f){
+    ring.setAttribute('class','fg '+f.key);
+    var name={hot:'Hot lead',warm:'Warm lead',cold:'Cold lead'}[f.key];
+    pill.className='pill '+f.key;pill.textContent=name;
+    prio.textContent=PRIO_EN[f.p];
+  }else{
+    ring.setAttribute('class','fg');
+    pill.className='pill wait';pill.textContent=s?'Scoring in progress':'Waiting for answers';
+    prio.textContent='The score builds as the lead answers.';
   }
 }
 
-resetDemo(true);
-</script>
+/* ---------- engine ---------- */
+function resetAll(){
+  S=fresh(S);
+  chat.innerHTML='';clearChips();
+  $('hand').hidden=true;
+  $('st3').textContent='Book';
+  $('ph-name').textContent=PROJECT+' Assistant';
+  applyLang();resetFields();renderScore();setStage(0);
+  setInput(false);
+  start();
+}
+async function start(){
+  var tok=S.token,t=L[S.lang];
+  await sleep(450);if(tok!==S.token)return;
+  var ok=await botSay(t.greet[S.src](PROJECT),tok);if(!ok)return;
+  setStage(1);
+  if(S.mode==='try'){setInput(true);showChips();}
+  else{autoplay(tok);}
+}
+async function autoplay(tok){
+  var lines=AUTO[S.lang];
+  for(var i=0;i<lines.length;i++){
+    await sleep(1100);if(tok!==S.token)return;
+    await handleUser(lines[i]);if(tok!==S.token)return;
+  }
+  if(S.step==='slot'){
+    await sleep(1400);if(tok!==S.token)return;
+    await book(S.slots[1]||S.slots[0]);
+  }
+}
+function missFirst(step){S.fails[step]=(S.fails[step]||0)+1;return S.fails[step]<2;}
+function outcome(){var s=total();return s>=90?{key:'hot',p:1,score:s}:(s>=60?{key:'warm',p:2,score:s}:{key:'cold',p:3,score:s});}
 
+async function handleUser(raw){
+  var text=(raw||'').trim();
+  if(!text||S.busy||S.step==='done'||S.step==='slot')return;
+  var tok=S.token,t=L[S.lang],step=S.step,reply=null,next=step,finished=false;
+  S.busy=true;setInput(false);clearChips();
+  addBubble('user',text);
+
+  if(step==='name'){
+    var n=parseName(text);
+    if(!n&&missFirst('name'))reply=t.retry.name;
+    else{n=n||text.slice(0,20);S.d.name=n;setField('name',n);reply=t.askBudget(n);next='budget';}
+  }else if(step==='budget'){
+    var b=parseBudget(text);
+    if(!b&&missFirst('budget'))reply=t.retry.budget;
+    else{
+      if(!b)b={text:text.slice(0,30),range:null,fit:'above',p:8,n:'Budget not clear'};
+      S.d.budget=b.text;S.d.budgetRange=b.range;S.d.fit=b.fit;S.pts.budget=b.p;S.notes.budget=b.n;
+      setField('budget',b.text);reply=t.budget[b.fit==='fit'?'fit':(b.fit==='below'?'below':'above')];next='timeline';
+    }
+  }else if(step==='timeline'){
+    var tl=parseTimeline(text);
+    if(!tl&&missFirst('timeline'))reply=t.retry.timeline;
+    else{
+      if(!tl)tl={v:'Not specified',p:5,n:'Timeline not clear'};
+      S.d.timeline=tl.v;S.pts.timeline=tl.p;S.notes.timeline=tl.n;
+      setField('timeline',tl.v);reply=t.askLoc;next='location';
+    }
+  }else if(step==='location'){
+    var lc=parseLocation(text);
+    if(!lc&&missFirst('location'))reply=t.retry.location;
+    else{
+      if(!lc)lc={v:'Not specified',p:8,n:'Undecided'};
+      S.d.location=lc.v;S.pts.location=lc.p;S.notes.location=lc.n;
+      setField('location',lc.v);reply=t.askPhone;next='contact';
+    }
+  }else if(step==='contact'){
+    var ph=parsePhone(text);
+    if(!ph)reply=t.badPhone;
+    else{
+      S.d.phone=ph.masked;S.pts.contact=25;S.notes.contact='Valid phone number';
+      setField('contact',ph.masked);next='scored';
+    }
+  }
+  renderScore();
+
+  if(next==='scored'){
+    setStage(2);S.final=outcome();renderScore();
+    var f=S.final,nm=S.d.name;
+    if(f.key==='cold'){
+      if(!await botSay(t.done.cold(nm),tok))return;
+      addBubble('system',t.sys(f.score,f.p));
+      $('st3').textContent='Nurture';setStage(4);
+      S.step='done';finished=true;renderHandoff();
+    }else{
+      if(!await botSay(t.done[f.key](nm),tok))return;
+      S.slots=makeSlots(f.key);S.step='slot';setStage(3);
+    }
+  }else{
+    if(reply&&!await botSay(reply,tok))return;
+    S.step=next;
+  }
+  S.busy=false;
+  if(S.mode==='try'){
+    if(S.step==='slot'||finished){showChips();}
+    else{setInput(true);showChips();}
+  }
+}
+
+async function book(slot){
+  if(!slot||S.busy||S.step!=='slot')return;
+  var tok=S.token,t=L[S.lang];
+  S.busy=true;clearChips();setInput(false);
+  S.slot=slot;
+  addBubble('user',slot.label[S.lang]);
+  if(!await botSay(t.booked(S.d.name,slot.at[S.lang]),tok))return;
+  addBubble('system',t.sys(S.final.score,S.final.p));
+  setStage(4);S.step='done';renderHandoff();
+  S.busy=false;showChips();
+}
+
+/* ---------- callback slots ---------- */
+function hhmm(d){try{return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}catch(e){return d.getHours()+':'+('0'+d.getMinutes()).slice(-2);}}
+function nextBiz(add){var x=new Date(),n=0;while(n<add){x.setDate(x.getDate()+1);if(x.getDay()!==0)n++;}return x;}
+function setTime(d,h,m){var x=new Date(d);x.setHours(h,m,0,0);return x;}
+function dayText(d,lang){
+  var today=new Date();today.setHours(0,0,0,0);
+  var dd=new Date(d);dd.setHours(0,0,0,0);
+  var diff=Math.round((dd-today)/864e5),ds;
+  try{ds=new Intl.DateTimeFormat(lang==='ur'?'ur-PK':'en-GB',{weekday:'short',day:'numeric',month:'short'}).format(d);}catch(e){ds=d.toDateString();}
+  return {diff:diff,ds:ds};
+}
+function futureSlot(d){
+  var en=dayText(d,'en'),ur=dayText(d,'ur'),t=hhmm(d);
+  return {
+    label:{en:(en.diff===1?'Tomorrow':en.ds)+', '+t,ur:(ur.diff===1?'کل':ur.ds)+'، '+t},
+    at:{en:(en.diff===1?'tomorrow at '+t:'on '+en.ds+' at '+t),ur:(ur.diff===1?'کل':ur.ds)+' '+t+' بجے'}
+  };
+}
+function soonSlot(mins){
+  var d=new Date(Date.now()+mins*60000),t=hhmm(d);
+  return {
+    label:{en:mins===30?'In 30 minutes':'In 1 hour',ur:mins===30?'30 منٹ میں':'ایک گھنٹے میں'},
+    at:{en:'at '+t+' today',ur:'آج '+t+' بجے'}
+  };
+}
+function makeSlots(kind){
+  if(kind==='hot')return [soonSlot(30),soonSlot(60),futureSlot(setTime(nextBiz(1),11,0))];
+  return [futureSlot(setTime(nextBiz(1),11,0)),futureSlot(setTime(nextBiz(1),15,0)),futureSlot(setTime(nextBiz(2),11,0))];
+}
+
+/* ---------- handoff ---------- */
+function renderHandoff(){
+  var d=S.d,f=S.final;
+  var next=S.slot?('Callback '+S.slot.at.en):'Nurture sequence, no call';
+  var rec={
+    name:d.name,phone:d.phone,source:SRC_EN[S.src],language:S.lang==='ur'?'Urdu':'English',
+    budget_pkr_lacs:d.budgetRange||null,budget_vs_range:d.fit,timeline:d.timeline,area:d.location,
+    score:f.score,priority:'P'+f.p,next_step:next
+  };
+  $('rec-json').textContent=JSON.stringify(rec,null,2);
+  $('rep-msg').textContent='New P'+f.p+' lead: '+d.name+', '+d.phone+'. Budget '+d.budget+'. Timeline: '+d.timeline+'. Area: '+d.location+'. Source: '+SRC_EN[S.src]+'. '+
+    (S.slot?('Callback booked '+S.slot.at.en+'.'):'No call needed; added to the nurture sequence.')+' Lead score '+f.score+'/100.';
+  $('hand').hidden=false;
+}
+function copyText(text,btn){
+  var old=btn.textContent;
+  function done(){btn.textContent='Copied';setTimeout(function(){btn.textContent=old;},1800);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){});}
+  else{var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}ta.remove();}
+}
+document.querySelectorAll('[data-copy]').forEach(function(b){
+  b.addEventListener('click',function(){copyText($(b.getAttribute('data-copy')).textContent,b);});
+});
+
+/* ---------- controls ---------- */
+function buildSeg(id,key){
+  var box=$(id);
+  SEGS[key].forEach(function(o){
+    var b=document.createElement('button');b.type='button';b.textContent=o[1];b.setAttribute('data-v',o[0]);
+    if(key==='lang'&&o[0]==='ur')b.setAttribute('lang','ur');
+    b.addEventListener('click',function(){
+      if(S[key]===o[0])return;
+      S[key]=o[0];syncSegs();resetAll();
+    });
+    box.appendChild(b);
+  });
+}
+function syncSegs(){
+  [['seg-mode','mode'],['seg-lang','lang'],['seg-src','src']].forEach(function(p){
+    $(p[0]).querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-v')===S[p[1]]));});
+  });
+}
+function send(){var v=inp.value;inp.value='';handleUser(v);}
+sendBtn.addEventListener('click',send);
+inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();send();}});
+$('restart').addEventListener('click',resetAll);
+
+/* ---------- savings calculator ---------- */
+var CFG=[
+  {k:'leads',l:'Leads per day',min:5,max:300,step:5,v:50,f:function(v){return v;}},
+  {k:'mins',l:'Staff minutes per lead (reply, qualify, log)',min:2,max:30,step:1,v:8,f:function(v){return v+' min';}},
+  {k:'rate',l:'Staff cost per hour (USD)',min:1,max:30,step:1,v:5,f:function(v){return '$'+v;}},
+  {k:'after',l:'Leads arriving outside office hours',min:0,max:80,step:5,v:35,f:function(v){return v+'%';}},
+  {k:'agent',l:'Agent running cost per month (USD)',min:0,max:500,step:10,v:60,f:function(v){return '$'+v;}}
+];
+function money(x){return '$'+Math.round(x).toLocaleString('en-US');}
+function buildCalc(){
+  $('sliders').innerHTML=CFG.map(function(c){
+    return '<div class="srow"><label for="c-'+c.k+'">'+c.l+'</label><output id="o-'+c.k+'" for="c-'+c.k+'">'+c.f(c.v)+'</output><input type="range" id="c-'+c.k+'" min="'+c.min+'" max="'+c.max+'" step="'+c.step+'" value="'+c.v+'"></div>';
+  }).join('');
+  CFG.forEach(function(c){$('c-'+c.k).addEventListener('input',calc);});
+  calc();
+}
+function calc(){
+  var v={};
+  CFG.forEach(function(c){v[c.k]=parseFloat($('c-'+c.k).value);$('o-'+c.k).textContent=c.f(v[c.k]);});
+  var hours=v.leads*30*v.mins/60,manual=hours*v.rate,agent=v.agent,diff=manual-agent;
+  var after=v.leads*30*v.after/100,mx=Math.max(manual,agent,1);
+  $('r-hours').textContent=Math.round(hours).toLocaleString('en-US');
+  $('r-manual').textContent=money(manual);
+  $('r-agent').textContent=money(agent);
+  $('r-after').textContent=Math.round(after).toLocaleString('en-US');
+  $('bar-m').style.width=(manual/mx*100)+'%';
+  $('bar-a').style.width=(agent/mx*100)+'%';
+  if(diff>=0){$('r-diff').textContent=money(diff);$('r-diff-l').textContent='Estimated monthly difference in favour of the agent';}
+  else{$('r-diff').textContent=money(-diff);$('r-diff-l').textContent='The agent costs more than manual handling at this volume';}
+}
+
+/* ---------- init ---------- */
+S=fresh(null);
+buildSeg('seg-mode','mode');buildSeg('seg-lang','lang');buildSeg('seg-src','src');
+buildBrk();buildCalc();syncSegs();
+resetAll();
+})();
+</script>
 </body>
 </html>
