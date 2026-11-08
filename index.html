@@ -88,6 +88,12 @@ h1{font-size:clamp(44px,6.6vw,100px);line-height:.93;letter-spacing:-.035em;font
 @keyframes fadein{to{opacity:1}}
 @keyframes bob{50%{transform:translateY(-12px)}}
 @keyframes bob2{50%{transform:translateY(8px)}}
+/* circular portrait */
+.photo-float::before{border-radius:50%}
+.photo-frame{aspect-ratio:1/1;border-radius:50%}
+.photo-frame img{object-position:center 12%}
+.badge.a{left:-16px;bottom:8%}
+.badge.b{right:-14px;top:12%}
 
 /* message builder */
 .q{background:var(--chalk);color:var(--pine);padding:28px;border-radius:4px}
@@ -213,8 +219,8 @@ h1{font-size:clamp(44px,6.6vw,100px);line-height:.93;letter-spacing:-.035em;font
           <div class="photo-float">
             <div class="photo-frame">
               <span aria-hidden="true">JH</span>
-              <!-- Save your portrait as photo.png in the same folder as this file -->
-              <img src="photo.png" alt="Portrait of Junaid Haleem" onerror="this.remove()">
+              <!-- The page tries photo.png (transparent background) first, then photo.jpg -->
+              <img src="photo.png" alt="Portrait of Junaid Haleem" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='photo.jpg';}else{this.remove();}">
             </div>
             <span class="badge b">Meta certified</span>
             <span class="badge a"><i></i>Available for work</span>
